@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Toni McQueen</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+
+    @font-face {
+      font-family: "ODMNerdMono";
+      src: url("ODMNerdMono-Regular.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --bg: #f7f3ea;
+      --panel: rgba(255,255,255,0.72);
+      --panel-strong: rgba(255,255,255,0.84);
+      --ink: #142738;
+      --muted: #5e7280;
+      --navy: #152c42;
+      --aqua: #12c7e6;
+      --line: rgba(20,39,56,0.10);
+      --shadow: 0 24px 80px rgba(21,44,66,0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 1.6rem;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Outfit", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(18,199,230,0.18), transparent 24rem),
+        radial-gradient(circle at 88% 15%, rgba(21,44,66,0.10), transparent 20rem),
+        linear-gradient(180deg, #fffdf8 0%, #f8f3e8 50%, #f4eee3 100%);
+    }
+
+    body.matrix-mode {
+      background: #02070b;
+      color: #d8eef7;
+    }
+
+    #matrix-rain {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+
+    body.matrix-mode #matrix-rain {
+      opacity: .95;
+    }
+
+    .matrix-toggle {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 30;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.8rem;
+      padding: .78rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(0,221,255,0.24);
+      background: rgba(2,12,18,0.72);
+      color: #9feaff;
+      font-family: "ODMNerdMono", "Space Grotesk", sans-serif;
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 18px 42px rgba(0,0,0,0.22);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: transform .24s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
+      will-change: transform;
+    }
+
+    .matrix-toggle:hover {
+      transform: translateY(-2px);
+      border-color: rgba(0,221,255,0.45);
+      box-shadow: 0 18px 42px rgba(0,221,255,0.16);
+    }
+
+    body.matrix-mode .matrix-toggle {
+      background: rgba(0,18,28,0.84);
+      color: #d6f8ff;
+      border-color: rgba(0,221,255,0.42);
+    }
+
+    .shell {
+      width: min(1120px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 1.25rem 0 4rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    [id] {
+      scroll-margin-top: 1.6rem;
+    }
+
+    .glass {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+    }
+
+    .topbar,
+    .hero,
+    .section {
+      animation: fade-up .8s ease both;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.2rem;
+      border-radius: 999px;
+      margin-bottom: 1.3rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .85rem;
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: .02em;
+    }
+
+    .brand-mark {
+      width: 2.35rem;
+      height: 2.35rem;
+      border-radius: 15px;
+      background: linear-gradient(135deg, var(--navy), var(--aqua));
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .65rem;
+    }
+
+    nav a,
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.9rem;
+      padding: .82rem 1.12rem;
+      border-radius: 999px;
+      text-decoration: none;
+      color: var(--navy);
+      border: 1px solid rgba(21,44,66,0.08);
+      background: rgba(255,255,255,0.64);
+      transition: .2s ease;
+    }
+
+    nav a:hover,
+    .button:hover {
+      transform: translateY(-2px);
+      border-color: rgba(18,199,230,0.30);
+      box-shadow: 0 14px 32px rgba(18,199,230,0.10);
+    }
+
+    .button.primary {
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--navy), var(--aqua));
+      box-shadow: 0 18px 40px rgba(18,199,230,0.18);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero-main,
+    .hero-side,
+    .section {
+      padding: 1.9rem;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.84), rgba(255,255,255,0.58)),
+        radial-gradient(circle at top right, rgba(18,199,230,0.16), transparent 18rem);
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 1rem;
+      padding: .48rem .74rem;
+      border-radius: 999px;
+      background: rgba(18,199,230,0.12);
+      color: #08a8c5;
+      text-transform: uppercase;
+      font-size: .8rem;
+      letter-spacing: .16em;
+      font-weight: 700;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0 0 1rem;
+      line-height: 1;
+      color: var(--navy);
+      letter-spacing: -0.03em;
+    }
+
+    h1 { font-size: clamp(3rem, 7vw, 5.4rem); }
+    h2 { font-size: clamp(1.7rem, 4vw, 2.3rem); }
+    h3 { font-size: 1.15rem; }
+
+    p {
+      margin: 0;
+      line-height: 1.78;
+      color: var(--muted);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .7rem;
+      margin-top: 1.3rem;
+    }
+
+    .profile-points,
+    .contact-list {
+      display: grid;
+      gap: .8rem;
+      margin-top: 1rem;
+    }
+
+    .bottom-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.2rem;
+    }
+
+    .point,
+    .contact-item {
+      padding: .95rem 1rem;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(21,44,66,0.08);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .quick-links {
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .quick-links .card {
+      flex: 0 0 calc((100% - 2rem) / 3);
+    }
+
+    .quick-links .card:last-child {
+      margin-left: auto;
+    }
+
+    .quick-links .card:last-child h3,
+    .quick-links .card:last-child p {
+      text-align: left;
+    }
+
+    .card {
+      padding: 1.25rem;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(21,44,66,0.08);
+    }
+
+    .card-link {
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .card-link:hover {
+      transform: translateY(-2px);
+      border-color: rgba(18,199,230,0.30);
+      box-shadow: 0 14px 32px rgba(18,199,230,0.10);
+    }
+
+    footer {
+      margin-top: 1rem;
+      padding: 1.2rem 1.4rem;
+      color: var(--muted);
+    }
+
+    body.matrix-mode .glass,
+    body.matrix-mode .card,
+    body.matrix-mode .point,
+    body.matrix-mode .contact-item {
+      background: rgba(3,18,27,0.78);
+      border-color: rgba(0,170,255,0.18);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.28);
+    }
+
+    body.matrix-mode .brand,
+    body.matrix-mode h1,
+    body.matrix-mode h2,
+    body.matrix-mode h3,
+    body.matrix-mode strong,
+    body.matrix-mode nav a,
+    body.matrix-mode .button {
+      color: #dbf7ff;
+    }
+
+    body.matrix-mode .brand,
+    body.matrix-mode nav a,
+    body.matrix-mode .button,
+    body.matrix-mode .eyebrow,
+    body.matrix-mode h1,
+    body.matrix-mode h2,
+    body.matrix-mode h3,
+    body.matrix-mode strong,
+    body.matrix-mode p,
+    body.matrix-mode span {
+      font-family: "ODMNerdMono", monospace;
+    }
+
+    body.matrix-mode p,
+    body.matrix-mode span {
+      color: #8ec7da;
+    }
+
+    body.matrix-mode .button {
+      background: rgba(4,22,34,0.76);
+      border-color: rgba(0,170,255,0.22);
+    }
+
+    body.matrix-mode .button.primary {
+      background: linear-gradient(135deg, #08354f, #00a8d1);
+      color: #fff;
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 920px) {
+      .hero,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-links {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .quick-links .card {
+        flex: none;
+      }
+    }
+
+  </style>
+</head>
+<body id="top">
+  <canvas id="matrix-rain" aria-hidden="true"></canvas>
+  <button class="matrix-toggle" id="matrix-toggle" type="button">Matrix</button>
+  <div class="shell">
+    <header class="topbar glass">
+      <div class="brand">
+        <span class="brand-mark"></span>
+        <span>Toni McQueen</span>
+      </div>
+      <nav>
+        <a href="#about">About</a>
+        <a href="#background">Background</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <article class="hero-main glass" id="about">
+          <span class="eyebrow">Personal Site</span>
+          <h1>Toni McQueen</h1>
+          <p>This is a simple personal website for introducing myself, sharing a bit of background, and making it easy for people to get in touch.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#contact">Contact Me</a>
+            <a class="button" href="#background">Read Background</a>
+            <a class="button" href="#projects">View Projects</a>
+          </div>
+        </article>
+
+        <aside class="hero-side glass">
+          <span class="eyebrow">At A Glance</span>
+          <h2>Quick profile</h2>
+          <div class="profile-points">
+            <div class="point"><strong style="display:block; color:var(--navy);">Location</strong><span>Twickenham</span></div>
+            <div class="point"><strong style="display:block; color:var(--navy);">Age</strong><span>34 years old</span></div>
+            <div class="point"><strong style="display:block; color:var(--navy);">Study</strong><span>Currently studying a Masters in Computer Science with Artificial Intelligence at St Mary's University in Twickenham.</span></div>
+            <div class="point"><strong style="display:block; color:var(--navy);">Social</strong><span>TikTok linked below.</span></div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="section glass" id="background">
+        <span class="eyebrow">Background</span>
+        <h2>About me</h2>
+        <p>I am based in Twickenham and wanted a straightforward personal website that feels clean, readable, and easy to maintain. This page is designed as a simple starting point that can later grow into a fuller personal profile, portfolio, or contact site if needed.</p>
+        <p style="margin-top:1rem;">A part of my life that matters to me is supporting people directly. I tend to back individuals directly by support of people's plans and try to give them a better chance of where they want to go. I also make much of the software and tooling I design available for others to use by open-sourcing a large part of what I build and releasing it under open-source and copyleft licences, including licences such as MIT and GPLv2.</p>
+      </section>
+
+      <section class="grid quick-links">
+        <article class="card glass card-link" onclick="window.location.href='#contact'">
+          <h3>Get in touch</h3>
+          <p>I am reachable through the <a href="#contact">contact details on this page</a>, including the linked social account.</p>
+        </article>
+        <article class="card glass card-link" onclick="window.location.href='/hireme/'">
+          <h3>Hire me</h3>
+          <p>If you want a cleaner work-focused view of my background, projects, and the kinds of roles I am targeting, visit the <a href="/hireme/">Hire me page</a>.</p>
+        </article>
+      </section>
+
+      <section class="section glass" id="projects">
+        <span class="eyebrow">Projects</span>
+        <h2>Things I have worked on</h2>
+        <div class="grid">
+          <article class="card glass card-link" onclick="window.location.href='project_machinelearning.html'">
+            <h3>Machine Learning Projects</h3>
+            <p>Applied machine learning work covering fraud detection, imbalanced classification, and model comparison across structured datasets.</p>
+            <p style="margin-top:1rem;"><a href="project_machinelearning.html">View project</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.location.href='project_artificialintelligence.html'">
+            <h3>Artificial Intelligence Projects</h3>
+            <p>Projects around reinforcement learning, intelligent agents, and practical AI problem-solving workflows.</p>
+            <p style="margin-top:1rem;"><a href="project_artificialintelligence.html">View project</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.location.href='project_languagemodels.html'">
+            <h3>Language Models And NLP Projects</h3>
+            <p>NLP projects covering topic modelling, text preprocessing, and language-focused analysis on large review datasets.</p>
+            <p style="margin-top:1rem;"><a href="project_languagemodels.html">View project</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.open('musicplayer_ui.html', '_blank', 'noopener')">
+            <h3>Music Player App</h3>
+            <p>A custom music player interface with a stylised matrix look and a more experimental design direction than a standard web app.</p>
+            <p style="margin-top:1rem;"><a href="musicplayer_ui.html" target="_blank" rel="noopener noreferrer">Open interface demo</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.location.href='mcqueen_chat_box.html'">
+            <h3>McQueen Chat Box</h3>
+            <p>A matrix-styled text box page using the ODMNerdMono font, designed to save sanitised text input into plain text files.</p>
+            <p style="margin-top:1rem;"><a href="mcqueen_chat_box.html">Open page</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.open('https://projectcampaign.co.uk/', '_blank', 'noopener')">
+            <h3>Project Campaign</h3>
+            <p>A custom website and coordination platform with public pages, live chat, maps, and supporting tools for organising local activity.</p>
+            <p style="margin-top:1rem;"><a href="https://projectcampaign.co.uk/" target="_blank" rel="noopener noreferrer">projectcampaign.co.uk</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.location.href='project_texttospeechhighlighted.html'">
+            <h3>Text To Speech Highlighted</h3>
+            <p>A Python text-to-speech reader that pairs spoken output with highlighted text for a more trackable reading flow.</p>
+            <p style="margin-top:1rem;"><a href="project_texttospeechhighlighted.html">View project</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.open('https://toni-mcqueen.github.io/fulwellparkavenue-materialchange/', '_blank', 'noopener')">
+            <h3>Fulwell Park Avenue Material Change</h3>
+            <p>A focused public information site published on GitHub Pages for a specific local planning and materials issue.</p>
+            <p style="margin-top:1rem;"><a href="https://toni-mcqueen.github.io/fulwellparkavenue-materialchange/" target="_blank" rel="noopener noreferrer">Open project</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.location.href='project_runusbdriveonqemugui.html'">
+            <h3>Run USB Drive On QEMU GUI</h3>
+            <p>A Linux utility that wraps a physical-disk boot workflow in a guided Zenity and QEMU interface.</p>
+            <p style="margin-top:1rem;"><a href="project_runusbdriveonqemugui.html">View project</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.location.href='project_resizexfsprogram.html'">
+            <h3>Resize XFS Program</h3>
+            <p>A safer XFS backup and restore workflow with guided partition selection and confirmation steps.</p>
+            <p style="margin-top:1rem;"><a href="project_resizexfsprogram.html">View project</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.location.href='project_batterypowerd.html'">
+            <h3>BatteryPowerd</h3>
+            <p>A battery monitoring and hibernation automation project for Linux laptops using shell scripts and systemd.</p>
+            <p style="margin-top:1rem;"><a href="project_batterypowerd.html">View project</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.location.href='project_slideshowapps.html'">
+            <h3>Terminal Slideshow Apps</h3>
+            <p>A family of terminal-based slideshow and media viewers built around Kitty icat, chafa, and catimg workflows.</p>
+            <p style="margin-top:1rem;"><a href="project_slideshowapps.html">View project</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.location.href='project_blauncher.html'">
+            <h3>Blauncher</h3>
+            <p>A lightweight Bash launcher for starting GUI apps from the terminal as properly detached processes.</p>
+            <p style="margin-top:1rem;"><a href="project_blauncher.html">View project</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.location.href='project_tlauncher.html'">
+            <h3>TLauncher</h3>
+            <p>A fast keyboard-driven Linux launcher designed to fit neatly into Wayland and Hyprland workflows.</p>
+            <p style="margin-top:1rem;"><a href="project_tlauncher.html">View project</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.location.href='project_hyprrotation.html'">
+            <h3>HyprRotation</h3>
+            <p>A small Hyprland utility for switching a laptop display between normal and rotated modes from scriptable commands.</p>
+            <p style="margin-top:1rem;"><a href="project_hyprrotation.html">View project</a> · <a href="https://github.com/mcqueentrading/hyperrotation" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">GitHub</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.location.href='migration-to-artix-linux.html'">
+            <h3>Migrating OS To Artix S6</h3>
+            <p>A structured migration plan for moving my laptop setup over to Artix Linux with s6, GRUB, Btrfs, swapfile, zram, and a Hyprland login flow.</p>
+            <p style="margin-top:1rem;"><a href="migration-to-artix-linux.html">Open guide</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.open('https://github.com/mcqueentrading/Hyprland-follow-window-plugin', '_blank', 'noopener')">
+            <h3>Hyprland Follow Window Plugin</h3>
+            <p>A Hyprland plugin that lets marked windows follow workspace changes using main-thread workspace callbacks and custom follow-window dispatchers.</p>
+            <p style="margin-top:1rem;"><a href="https://github.com/mcqueentrading/Hyprland-follow-window-plugin" target="_blank" rel="noopener noreferrer">Open repository</a></p>
+          </article>
+          <article class="card glass card-link" onclick="window.location.href='project_spaceshipgame.html'">
+            <h3>Starting Spaceship Game</h3>
+            <p>A C, SDL2, and OpenGL prototype adapted into a browser-playable WebAssembly build.</p>
+            <p style="margin-top:1rem;"><a href="project_spaceshipgame.html">View project</a></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section glass" id="contact">
+        <span class="eyebrow">Contact</span>
+        <h2>Contact me</h2>
+        <div class="contact-list">
+          <div class="contact-item"><strong style="display:block; color:var(--navy);">Mcqueen_chat</strong><span>One way you can send me a message is to use <a href="https://tonimcqueen.com/mcqueen_chat_box.html">Mcqueen_chat</a>, write a message in the box, click save, and I&apos;ll pick it up on the computer at some point.</span></div>
+          <div class="contact-item"><strong style="display:block; color:var(--navy);">TikTok</strong><span><a href="https://www.tiktok.com/@tonicodmtt" target="_blank" rel="noopener noreferrer">www.tiktok.com/@tonicodmtt</a></span></div>
+          <div class="contact-item"><strong style="display:block; color:var(--navy);">Location</strong><span>Twickenham</span></div>
+          <div class="contact-item"><strong style="display:block; color:var(--navy);">Availability</strong><span>Messages may be picked up later rather than immediately.</span></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="glass">
+      <p>Website for Toni McQueen. Based in Twickenham. TikTok: www.tiktok.com/@tonicodmtt.</p>
+    </footer>
+
+    <div class="bottom-actions">
+      <a class="button" href="#top">Back to top</a>
+    </div>
+  </div>
+  <script>
+    (() => {
+      const button = document.getElementById("matrix-toggle");
+      const canvas = document.getElementById("matrix-rain");
+      const topbar = document.querySelector(".topbar");
+      const brand = document.querySelector(".brand");
+      const context = canvas.getContext("2d");
+      let animationId = null;
+      let columns = [];
+      let width = 0;
+      let height = 0;
+      const glyphs = "01アイウエオカキクケコサシスセソABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      const fontSize = 16;
+
+      function resizeMatrix() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        const count = Math.ceil(width / fontSize);
+        columns = Array.from({ length: count }, () => Math.random() * -height);
+      }
+
+      function drawMatrix() {
+        context.fillStyle = "rgba(1, 8, 12, 0.14)";
+        context.fillRect(0, 0, width, height);
+        context.font = fontSize + "px monospace";
+
+        for (let i = 0; i < columns.length; i += 1) {
+          const glyph = glyphs[Math.floor(Math.random() * glyphs.length)];
+          const x = i * fontSize;
+          const y = columns[i];
+          context.fillStyle = i % 5 === 0 ? "#d7ffff" : "#00d6ff";
+          context.fillText(glyph, x, y);
+          columns[i] = y > height + Math.random() * 120 ? Math.random() * -200 : y + fontSize;
+        }
+
+        animationId = window.requestAnimationFrame(drawMatrix);
+      }
+
+      function startMatrix() {
+        if (animationId) return;
+        resizeMatrix();
+        context.fillStyle = "#02070b";
+        context.fillRect(0, 0, width, height);
+        drawMatrix();
+      }
+
+      function stopMatrix() {
+        if (animationId) {
+          window.cancelAnimationFrame(animationId);
+          animationId = null;
+        }
+        context.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function updateMatrixPath() {
+        if (!topbar || !brand) return;
+
+        const topbarRect = topbar.getBoundingClientRect();
+        const brandRect = brand.getBoundingClientRect();
+        const buttonWidth = button.offsetWidth || 0;
+        const buttonHeight = button.offsetHeight || 0;
+        const baseLeft = 16;
+        const baseTop = 16;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        const headerVisible = topbarRect.bottom > 0 && topbarRect.top < 140;
+
+        if (headerVisible) {
+          const curveProgress = clamp((140 - topbarRect.top) / 140, 0, 1);
+
+          // Start from the right edge during the header-conflict zone,
+          // then return to the normal left-side track.
+          const startX = Math.max(0, window.innerWidth - buttonWidth - (baseLeft * 2)) + 740;
+          const startY = -135;
+          offsetX = startX * (1 - curveProgress);
+          offsetY = startY * (1 - curveProgress);
+        } else {
+          offsetX = 0;
+          offsetY = 0;
+        }
+
+        button.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+      }
+
+      button.addEventListener("click", () => {
+        document.body.classList.toggle("matrix-mode");
+        const enabled = document.body.classList.contains("matrix-mode");
+        button.textContent = enabled ? "Matrix On" : "Matrix";
+        updateMatrixPath();
+        if (enabled) {
+          startMatrix();
+        } else {
+          stopMatrix();
+        }
+      });
+
+      window.addEventListener("resize", () => {
+        if (document.body.classList.contains("matrix-mode")) {
+          resizeMatrix();
+        }
+        updateMatrixPath();
+      });
+
+      window.addEventListener("scroll", updateMatrixPath, { passive: true });
+      updateMatrixPath();
+    })();
+  </script>
+</body>
+</html>
