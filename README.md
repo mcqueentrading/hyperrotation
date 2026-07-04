@@ -1,88 +1,148 @@
-# HyprRotation
+# HyperRotation
 
-Simple Hyprland monitor rotation helper for quickly applying a transform across connected displays from the command line.
+HyperRotation is a native Hyprland rotation plugin for the OnePlus 6T /
+`oneplus-fajita` Arch Linux phone image, where display rotation must update the
+panel transform and touch input transform together.
 
-## Overview
+This repository used to be a small shell wrapper around `hyprctl`. It is now a
+Hyprland plugin package. The old shell-wrapper approach is useful as history,
+but the production path should keep compositor state changes inside Hyprland.
 
-This project provides a small shell wrapper around `hyprctl` so monitor rotation can be switched without editing configuration files by hand.
+## What It Does
 
-Supported modes:
+The plugin exposes rotation commands through Hyprland dispatchers:
 
-- `normal`
-- `right`
-- `down`
-- `left`
-- `lef`
+- applies a monitor transform to a configured output
+- updates `input:touchdevice:transform` to match the screen
+- uses Hyprland's plugin API to run dynamic `keyword` updates inside the
+  compositor instead of spawning a `hyprctl` shell process
+- provides a small API that a phone sensor feed can call
 
-The current live entrypoint is:
+The default target is the OnePlus 6T internal display:
 
-- `hypr_rotation.sh`
-
-Older Python versions are kept in `legacy/` for reference.
-
-## Quick Start
-
-```bash
-chmod +x hypr_rotation.sh
-./hypr_rotation.sh normal
-./hypr_rotation.sh right
-./hypr_rotation.sh down
-./hypr_rotation.sh left
+```text
+output:   DSI-1
+mode:     1080x2340@60
+position: 0x0
+scale:    1
 ```
 
-## Shell Setup
+## Hyprland Config
 
-Place the script somewhere stable, for example:
+Load the plugin from `hyprland.conf`:
 
-```bash
-mkdir -p "$HOME/.local/bin"
-cp hypr_rotation.sh "$HOME/.local/bin/hypr_rotation.sh"
-chmod +x "$HOME/.local/bin/hypr_rotation.sh"
+```ini
+plugin = ~/.config/hypr/plugins/hyperrotation.so
+
+plugin:rotation:output = DSI-1
+plugin:rotation:mode = 1080x2340@60
+plugin:rotation:position = 0x0
+plugin:rotation:scale = 1
+plugin:rotation:touch_transform = -1
+plugin:rotation:mute_notifications = 0
 ```
 
-Then add aliases to your shell config such as `~/.bashrc`:
+`touch_transform = -1` means "use the same transform as the monitor".
 
-```bash
-alias nom="$HOME/.local/bin/hypr_rotation.sh normal"
-alias rot="$HOME/.local/bin/hypr_rotation.sh right"
-alias down="$HOME/.local/bin/hypr_rotation.sh down"
-alias lef="$HOME/.local/bin/hypr_rotation.sh lef"
-alias left="$HOME/.local/bin/hypr_rotation.sh left"
+## Dispatchers
+
+```ini
+plugin:rotation:set
+plugin:rotation:normal
+plugin:rotation:right
+plugin:rotation:down
+plugin:rotation:left
 ```
 
-Reload your shell after editing:
+Examples:
 
-```bash
-source ~/.bashrc
+```sh
+hyprctl dispatch plugin:rotation:set right-up
+hyprctl dispatch plugin:rotation:set 3
+hyprctl dispatch plugin:rotation:normal
+hyprctl dispatch plugin:rotation:right
 ```
 
-## Requirements
+Supported transform names:
 
-- `bash`
-- `hyprctl`
-- a running Hyprland session
+```text
+normal      0
+right       3
+right-up    3
+down        2
+bottom-up   2
+left        1
+left-up     1
+```
 
-## How It Works
+## Optional Lua API
 
-The shell script:
+Some Hyprland builds expose `HyprlandAPI::addLuaFunction`; others do not. The
+default OnePlus 6T build uses dispatchers because they are available in the
+current public Hyprland plugin API. When building against a Hyprland tree that
+does provide `addLuaFunction`, build with:
 
-1. validates the requested rotation mode
-2. discovers connected monitors via `hyprctl monitors`
-3. applies the matching Hyprland transform to each detected monitor
-4. prints a simple result summary
+```sh
+WITH_LUA=1 ./build.sh
+```
 
-## Repository Scope
+After loading a Lua-enabled build, Lua config can call:
 
-This repo is intentionally small.
+```lua
+hl.plugin.rotation.set("right-up")
+hl.plugin.rotation.set(3)
+hl.plugin.rotation.normal()
+hl.plugin.rotation.right()
+hl.plugin.rotation.down()
+hl.plugin.rotation.left()
+```
 
-- `hypr_rotation.sh` is the current live version
-- `legacy/` contains older Python-based approaches that edited config files directly
+Lua should be treated as an optional control/config layer. The native plugin
+owns the actual Hyprland monitor and touch transform update.
 
-## Project Page
+## Build
 
-Portfolio page:
+Build against the exact Hyprland headers for the Hyprland binary you will load
+the plugin into. Hyprland plugins are ABI-sensitive.
 
-https://tonimcqueen.com/project_hyprrotation.html
+Using an explicit source checkout:
+
+```sh
+HYPRLAND_SRC=/path/to/Hyprland ./build.sh
+```
+
+Using system Hyprland development headers, if your distro package provides
+`hyprland.pc`:
+
+```sh
+./build.sh
+```
+
+The build produces:
+
+```text
+hyperrotation.so
+```
+
+## Install
+
+```sh
+mkdir -p ~/.config/hypr/plugins
+cp hyperrotation.so ~/.config/hypr/plugins/hyperrotation.so
+```
+
+Restart Hyprland after installing or replacing the plugin.
+
+## OnePlus 6T Phone Image Notes
+
+For the OnePlus 6T image, HyperRotation is intended to replace direct
+`hyprctl keyword monitor ... transform,...` calls in the auto-rotate path. A
+sensor event feed can classify accelerometer/rotation-vector events and call the
+plugin dispatcher, while the plugin applies the compositor-side monitor and
+touch transform through Hyprland's plugin API.
+
+The long-term target is a fully native event-driven sensor backend. The current
+plugin API is the stable boundary for that work.
 
 ## License
 
